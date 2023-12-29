@@ -2,7 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import pymongo
 import threading
+
 from yahoo_client import YahooClient
+from mongo_storage import MongoStorage
+from prices import Prices
 
 
 class WikiClient:
@@ -39,12 +42,19 @@ class ThreadManager:
     def init(self, symbols, db_url):
         self.symbols = symbols
         self.db_url = db_url
+        self.storage = MongoStorage(self.db_url)
 
     def fetch_and_save(self, symbol):
-        with MongoDBManager(self.db_url) as mongo_manager:
-            price = YahooClient.get_financial_data(symbol)
-            if price:
-                mongo_manager.save_data(symbol, price)
+        price = YahooClient.get_financial_data(symbol)
+        if price:
+            price_data = Prices(symbol=symbol, price=price)
+            self.storage.save_one(price_data)
+
+    def update_price(self, symbol, new_price):
+        self.storage.update_one({"symbol": symbol}, {"price": new_price})
+
+    def delete_symbol(self, symbol):
+        self.storage.delete_one({"symbol": symbol})
 
     def execute_threads(self):
         threads = []
@@ -55,3 +65,13 @@ class ThreadManager:
 
         for thread in threads:
             thread.join()
+
+        self.update_price("AAPL", 155.0)
+        self.delete_symbol("MSFT")
+
+        found_prices = self.storage.find({})
+        for price in found_prices:
+            print(price)
+
+        self.storage.close()
+        
