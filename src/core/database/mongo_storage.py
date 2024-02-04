@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from base_storage import BaseStorage
+from src.core.database.base_storage import BaseStorage
 
 
 class MongoStorage(BaseStorage):

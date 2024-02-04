@@ -2,9 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import pymongo
 
-from yahoo_client import YahooClient
-from src.core.mongo_storage import MongoStorage
+from src.core.yahoo_client import YahooClient
+from src.core.database.mongo_storage import MongoStorage
 from src.core.prices import Prices
+
 
 class WikiClient:
     """A client for fetching stock symbols from Wikipedia."""
@@ -25,36 +26,6 @@ class WikiClient:
         symbols = [row.find_all("td")[0].text.strip() for row in table.find_all("tr")[1:]]
         return symbols
 
-class MongoDBManager:
-    """Manager class for MongoDB operations."""
-
-    def __init__(self, db_url):
-        """Initialize the MongoDB client.
-
-        Args:
-            db_url (str): The MongoDB connection URL.
-        """
-        self.client = pymongo.MongoClient(db_url)
-        self.db = self.client["stock_data"]
-        self.collection = self.db["stock_prices"]
-
-    def __enter__(self):
-        """Enter the runtime context related to the MongoDB manager."""
-        return self
-
-    def save_data(self, symbol, price):
-        """Save stock data into the MongoDB collection.
-
-        Args:
-            symbol (str): The stock symbol.
-            price (float): The stock price.
-        """
-        record = {"symbol": symbol, "price": price}
-        self.collection.insert_one(record)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit the runtime context and close the MongoDB client."""
-        self.client.close()
 
 class ThreadManager:
     """Manager class for handling threading operations."""
