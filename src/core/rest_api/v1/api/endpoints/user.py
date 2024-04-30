@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from src.core.rest_api.auth.security import create_access_token
 from src.core.rest_api.data.models import Token, UserCreate
 from src.core.rest_api.data.mongo_manager import get_user_by_username, create_user

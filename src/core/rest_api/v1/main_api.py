@@ -1,5 +1,5 @@
 import uvicorn
-from src.core.rest_api.api.api import app
+from src.core.rest_api.v1.api.api import app
 
 if __name__ == "__main__":
     """

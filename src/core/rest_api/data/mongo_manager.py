@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 from .models import UserDB
-from bson import ObjectId
-from ..auth.security import pwd_context
+from src.core.rest_api.auth.security import pwd_context
 
 # MongoDB client initialization
 client = MongoClient("your_mongodb_uri")
