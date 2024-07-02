@@ -6,9 +6,9 @@ from starlette import status
 from src.core.rest_api.data.models import TokenData
 
 # Configuration constants
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# SECRET_KEY = "your_secret_key"
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -43,6 +43,7 @@ def verify_token(token: str):
     return token_data
 
 
+# Salt already used
 def hash_password(password: str):
     """
     Hash a password using bcrypt, which automatically handles salting.

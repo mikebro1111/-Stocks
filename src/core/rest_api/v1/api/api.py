@@ -1,18 +1,25 @@
-from .endpoints import user, data
+from .endpoints import user, data, export
 from fastapi import FastAPI, Depends
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
 from src.core.rest_api.v1.api.auth import get_current_user
 from src.core.rest_api.v1.api.models import User
 
 
 app = FastAPI()
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
 # Include routers for user and data modules.
 # Each router is assigned a path prefix "/api/v1/" and corresponding tags for grouping.
-app.include_router(user.router, prefix="/api/v1/", tags=["users"])
-app.include_router(data.router, prefix="/api/v1/", tags=["data"])
+app.include_router(user.router, prefix="/api/v1/", dependencies=[limiter.limit("5/minute")])
+app.include_router(data.router, prefix="/api/v1/", dependencies=[limiter.limit("5/minute")])
+app.include_router(export.router, prefix="/api/v1/", dependencies=[limiter.limit("5/minute")])
 
-
-@app.post("/create-user")
+@app.post("/user")
+@limiter.limit("10/minute")
 async def create_user(user: User):
     """
     Create a new user in the system.
